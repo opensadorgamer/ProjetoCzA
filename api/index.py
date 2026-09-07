@@ -1,19 +1,34 @@
 import os
+import json
+import urllib.request
 from flask import Flask, render_template, request, jsonify
 from quiz_data import QUIZ_QUESTOES
 import random
-from google import genai
-from supabase import create_client, Client
 
-
-# Configuração do Supabase
 SUPABASE_URL = "https://xotwhuluhqdlsqybcsfl.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvdHdodWx1Z2hkbHNxeWJjc2ZsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODc4ODM5MCwiZXhwIjoyMTA0MzY0MzkwfQ.G17kS37ihL2sByHskeUGSVhzZHryEAaQBb3Jhl9rJTo"
 
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
-
-# Aponta o template_folder para a pasta raiz onde estão os templates
 app = Flask(__name__, template_folder='../templates')
+
+def supabase_request(endpoint, method="GET", data=None):
+    url = f"{SUPABASE_URL}/rest/v1/{endpoint}"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "return=representation"
+    }
+    
+    req_data = json.dumps(data).encode('utf-8') if data else None
+    req = urllib.request.Request(url, data=req_data, headers=headers, method=method)
+    
+    try:
+        with urllib.request.urlopen(req) as response:
+            body = response.read().decode('utf-8')
+            return json.loads(body) if body else []
+    except Exception as e:
+        print(f"Erro Supabase REST: {e}")
+        return None
 
 # Rotas de navegação principais
 @app.route('/')
@@ -36,20 +51,14 @@ def crosshair_page():
 def curiosidades_page():
     return render_template('curiosidades.html')
 
-# --- ROTAS DE RANKING USANDO SUPABASE ---
+# --- ROTAS DE RANKING USANDO API REST DIRETA ---
 
 @app.route('/api/ranking/<mode>', methods=['GET'])
 def get_ranking(mode):
     try:
-        # Busca no Supabase ordenado por pontuação e precisão
-        response = supabase.table('rankings') \
-            .select('*') \
-            .eq('mode', mode) \
-            .order('score', desc=True) \
-            .order('accuracy', desc=True) \
-            .limit(10) \
-            .execute()
-        return jsonify(response.data)
+        endpoint = f"rankings?mode=eq.{mode}&order=score.desc,accuracy.desc&limit=10"
+        data = supabase_request(endpoint, method="GET")
+        return jsonify(data if data is not None else [])
     except Exception as e:
         return jsonify([])
 
@@ -63,24 +72,31 @@ def save_score(mode):
     if not player_name:
         player_name = 'Anônimo'
         
-    try:
-        supabase.table('rankings').insert({
-            "mode": mode,
-            "name": player_name,
-            "score": score,
-            "accuracy": accuracy,
-            "time": 0
-        }).execute()
+    payload = {
+        "mode": mode,
+        "name": player_name,
+        "score": score,
+        "accuracy": accuracy,
+        "time": 0
+    }
+    
+    result = supabase_request("rankings", method="POST", data=payload)
+    if result is not None:
         return jsonify({"status": "success"})
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        return jsonify({"status": "error", "message": str(e)}), 500
+    else:
+        return jsonify({"status": "error", "message": "Falha ao salvar no banco"}), 500
 
 @app.route('/api/ranking/clear/<mode>', methods=['POST'])
 def clear_ranking(mode):
+    endpoint = f"rankings?mode=eq.{mode}"
     try:
-        supabase.table('rankings').delete().eq('mode', mode).execute()
+        url = f"{SUPABASE_URL}/rest/v1/{endpoint}"
+        headers = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": f"Bearer {SUPABASE_KEY}"
+        }
+        req = urllib.request.Request(url, headers=headers, method="DELETE")
+        urllib.request.urlopen(req)
         return jsonify({"status": "cleared"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
@@ -97,14 +113,9 @@ def get_quiz_questions(mode):
 @app.route('/api/ranking/quiz', methods=['GET'])
 def get_quiz_ranking():
     try:
-        response = supabase.table('rankings') \
-            .select('*') \
-            .eq('mode', 'quiz') \
-            .order('score', desc=True) \
-            .order('time', desc=False) \
-            .limit(10) \
-            .execute()
-        return jsonify(response.data)
+        endpoint = "rankings?mode=eq.quiz&order=score.desc,time.asc&limit=10"
+        data = supabase_request(endpoint, method="GET")
+        return jsonify(data if data is not None else [])
     except Exception as e:
         return jsonify([])
 
@@ -119,14 +130,16 @@ def save_quiz_score():
     if not player_name:
         player_name = 'Anônimo'
         
-    try:
-        supabase.table('rankings').insert({
-            "mode": 'quiz',
-            "name": player_name,
-            "score": score,
-            "accuracy": accuracy,
-            "time": time_spent
-        }).execute()
+    payload = {
+        "mode": 'quiz',
+        "name": player_name,
+        "score": score,
+        "accuracy": accuracy,
+        "time": time_spent
+    }
+    
+    result = supabase_request("rankings", method="POST", data=payload)
+    if result is not None:
         return jsonify({"status": "success"})
-    except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+    else:
+        return jsonify({"status": "error", "message": "Falha ao salvar no banco"}), 500
