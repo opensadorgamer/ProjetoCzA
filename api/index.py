@@ -1,40 +1,46 @@
 import os
 import json
-import urllib.request
-import urllib.error
+import http.client
 from flask import Flask, render_template, request, jsonify
 from quiz_data import QUIZ_QUESTOES
 import random
 
-SUPABASE_URL = "https://xotwhuluhqdlsqybcsfl.supabase.co"
+SUPABASE_HOST = "xotwhuluhqdlsqybcsfl.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhvdHdodWx1Z2hkbHNxeWJjc2ZsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4ODc4ODM5MCxl-hwIjoyMTA0MzY0MzkwfQ.G17kS37ihL2sByHskeUGSVhzZHryEAaQBb3Jhl9rJTo"
 
 app = Flask(__name__, template_folder='../templates')
 
 def supabase_request(endpoint, method="GET", data=None):
-    url = f"{SUPABASE_URL}/rest/v1/{endpoint}"
-    headers = {
-        "apikey": SUPABASE_KEY,
-        "Authorization": f"Bearer {SUPABASE_KEY}",
-        "Content-Type": "application/json",
-        "Prefer": "return=representation"
-    }
-    
-    req_data = json.dumps(data).encode('utf-8') if data else None
-    req = urllib.request.Request(url, data=req_data, headers=headers, method=method)
-    
+    conn = None
     try:
-        # Usando timeout explícito para liberar a porta imediatamente
-        with urllib.request.urlopen(req, timeout=10) as response:
-            body = response.read().decode('utf-8')
-            return json.loads(body) if body else []
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode('utf-8') if e.fp else ""
-        print(f"Erro Supabase HTTP {e.code}: {error_body}")
-        return None
+        conn = http.client.HTTPSConnection(SUPABASE_HOST, timeout=8)
+        headers = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": f"Bearer {SUPABASE_KEY}",
+            "Content-Type": "application/json",
+            "Prefer": "return=representation"
+        }
+        
+        body = json.dumps(data) if data else None
+        conn.request(method, f"/rest/v1/{endpoint}", body=body, headers=headers)
+        
+        res = conn.getresponse()
+        res_body = res.read().decode('utf-8')
+        
+        if res.status >= 400:
+            print(f"Erro Supabase HTTP {res.status}: {res_body}")
+            return None
+            
+        return json.loads(res_body) if res_body else []
     except Exception as e:
         print(f"Erro conexao Supabase: {e}")
         return None
+    finally:
+        if conn:
+            try:
+                conn.close()
+            except:
+                pass
 
 @app.route('/')
 def index():
