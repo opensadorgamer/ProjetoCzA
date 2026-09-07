@@ -73,7 +73,7 @@ def save_score(mode):
         return jsonify({"status": "success"})
     except Exception as e:
         import traceback
-        traceback.print_exc()  # <--- Isso vai imprimir o erro completo no terminal do Flask
+        traceback.print_exc()
         return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/ranking/clear/<mode>', methods=['POST'])
@@ -129,8 +129,3 @@ def save_quiz_score():
         return jsonify({"status": "success"})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
