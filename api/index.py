@@ -56,12 +56,19 @@ def curiosidades_page():
 @app.route('/api/ranking/<mode>', methods=['GET'])
 def get_ranking(mode):
     try:
-        endpoint = f"rankings?mode=eq.{mode}&order=score.desc,accuracy.desc&limit=10"
+        # Força a busca trazendo os dados ordenados para verificar se a API responde
+        endpoint = f"rankings?select=*&order=score.desc,accuracy.desc&limit=10"
         data = supabase_request(endpoint, method="GET")
-        return jsonify(data if data is not None else [])
-    except Exception as e:
+        
+        # Filtra no próprio Python para garantir que o mode corresponde, evitando falhas de sintaxe do PostgREST
+        if isinstance(data, list):
+            filtered = [row for row in data if row.get('mode') == mode]
+            return jsonify(filtered)
+            
         return jsonify([])
-
+    except Exception as e:
+        print(f"Erro ao buscar ranking: {e}")
+        return jsonify([])
 @app.route('/api/ranking/<mode>', methods=['POST'])
 def save_score(mode):
     req_data = request.json
