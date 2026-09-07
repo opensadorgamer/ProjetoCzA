@@ -30,13 +30,16 @@ def supabase_request(endpoint, method="GET", data=None):
             else:
                 return None
 
+            print(f"Status Supabase: {response.status_code} - Resposta: {response.text}")
+            
             if response.status_code >= 400:
-                print(f"Erro Supabase HTTP {response.status_code}: {response.text}")
                 return None
                 
             return response.json() if response.text else []
     except Exception as e:
-        print(f"Erro conexao Supabase com httpx: {e}")
+        import traceback
+        print(f"ERRO DETALHADO HTTPX: {str(e)}")
+        print(traceback.format_exc())
         return None
 
 @app.route('/')
