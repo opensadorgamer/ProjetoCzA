@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT // CROSSHAIR STUDIO PRO</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --bg-main: #0f1923; --bg-card: #18232c; --bg-panel: #111822;
+            --accent-red: #ff4655; --text-main: #ece8e1; --text-muted: #8b978f; --border-color: #2b3a4a;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; user-select: none; }
+        .main-container { display: flex; gap: 20px; background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
+        .menu-side { width: 420px; display: flex; flex-direction: column; gap: 6px; }
+        h2 { font-family: 'Teko', sans-serif; color: #ffcc00; font-size: 22px; margin: 0 0 10px 0; border-bottom: 2px solid #ffcc00; padding-bottom: 4px; text-align: center; text-transform: uppercase; }
+        label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 2px; display: block; }
+        input[type="text"], select { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: 600; box-sizing: border-box; }
+        .color-picker-wrapper { display: flex; align-items: center; background: var(--bg-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 3px 6px; gap: 8px; }
+        input[type="color"] { appearance: none; border: none; width: 28px; height: 24px; border-radius: 4px; cursor: pointer; background: transparent; }
+        .ch-subtabs { display: flex; gap: 4px; margin-bottom: 4px; }
+        .ch-subtab-btn { flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-muted); padding: 4px; cursor: pointer; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
+        .ch-subtab-btn.active { background: #23313f; color: #ffcc00; border-color: #ffcc00; }
+        .ch-section { display: none; } .ch-section.active { display: flex; flex-direction: column; gap: 6px; }
+        .crosshair-preview-area { position: relative; width: 620px; height: 420px; background: url('https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000&auto=format&fit=crop') center/cover no-repeat; border-radius: 8px; overflow: hidden; border: 2px solid var(--border-color); display: flex; align-items: center; justify-content: center; }
+        .crosshair-overlay-bg { position: absolute; inset: 0; background: rgba(15, 25, 35, 0.5); }
+        .crosshair-box { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 0px; height: 0px; display: flex; align-items: center; justify-content: center; pointer-events: none; z-index: 5; }
+        .ch-line { position: absolute; box-sizing: border-box; } .ch-dot { position: absolute; border-radius: 50%; transform: translate(-50%, -50%); box-sizing: border-box; }
+        .btn { font-family: 'Teko', sans-serif; letter-spacing: 1.5px; background: #ffcc00; color: #0f1923; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; font-size: 18px; text-transform: uppercase; }
+        .btn:hover { background: #ffd633; }
+        .btn-secondary { background: #283442; color: white; font-size: 16px; text-decoration: none; text-align: center; display: block; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="menu-side">
+            <h2>Crosshair Studio Pro</h2>
+            <div>
+                <label>Miras de Pro Players (30+ Miras)</label>
+                <select id="chPresetSelect" onchange="applyProPreset(this.value)">
+                    <option value="custom">-- Personalizado Manualmente --</option>
+                    <optgroup label="Brasil">
+                        <option value="aspas">Aspas</option><option value="sacy">Sacy</option><option value="pANcada">pANcada</option><option value="less">Less</option><option value="cauanzin">Cauanzin</option><option value="saadhak">Saadhak</option><option value="qck">qck</option><option value="mazin">Mazin</option><option value="mwzera">mwzera</option><option value="lukxo">Lukxo</option>
+                    </optgroup>
+                    <optgroup label="América do Norte & Pacífico">
+                        <option value="tenz">TenZ</option><option value="demon1">Demon1</option><option value="yay">yay</option><option value="asuna">Asuna</option><option value="boostio">Boostio</option><option value="bang">bang</option><option value="zekken">zekken</option><option value="stax">stax</option><option value="jinggg">Jinggg</option><option value="something">something</option>
+                    </optgroup>
+                    <optgroup label="EMEA (Europa)">
+                        <option value="derke">Derke</option><option value="chronicle">Chronicle</option><option value="boaster">Boaster</option><option value="minaboo">Miniboo</option><option value="cNed">cNed</option><option value="ang1e">ANGE1</option><option value="sayf">Sayf</option><option value="nivera">Nivera</option><option value="soulcas">soulcas</option><option value="shroud">Shroud</option>
+                    </optgroup>
+                </select>
+            </div>
+
+            <div class="ch-subtabs">
+                <button class="ch-subtab-btn active" onclick="switchChTab('general')" id="subtabGeneral">Geral & Cor</button>
+                <button class="ch-subtab-btn" onclick="switchChTab('inner')" id="subtabInner">Linhas Int.</button>
+                <button class="ch-subtab-btn" onclick="switchChTab('outer')" id="subtabOuter">Linhas Ext.</button>
+            </div>
+
+            <div class="ch-section active" id="secGeneral">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div>
+                        <label>Cor Pré-definida</label>
+                        <select id="chColorPreset" onchange="handleColorPresetChange(this.value)">
+                            <option value="#00ffcc">Ciano Neon</option><option value="#00ff00">Verde</option><option value="#ffff00">Amarelo</option><option value="#ff00ff">Magenta</option><option value="#ffffff">Branco</option><option value="#ff4655">Vermelho Valorant</option><option value="custom">Outra Cor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Seletor de Cor (HEX)</label>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="chColorPicker" value="#00ffcc" oninput="handleColorInput(this.value)">
+                            <input type="text" id="chColorHexText" value="#00ffcc" oninput="updateCrosshairPreview()" style="border:none; background:transparent; font-size:11px;">
+                        </div>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Opacidade Geral</label><input type="text" id="chOpacity" value="1" oninput="updateCrosshairPreview()"></div>
+                    <div><label>Contorno</label><select id="chHasOutline" onchange="updateCrosshairPreview()"><option value="1">Ativado</option><option value="0">Desativado</option></select></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Espessura Contorno</label><input type="text" id="chOutlineThickness" value="1" oninput="updateCrosshairPreview()"></div>
+                    <div><label>Opacidade Contorno</label><input type="text" id="chOutlineOpacity" value="1" oninput="updateCrosshairPreview()"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Ponto Central</label><select id="chHasDot" onchange="updateCrosshairPreview()"><option value="0">Desativado</option><option value="1">Ativado</option></select></div>
+                    <div><label>Tamanho do Ponto</label><input type="text" id="chDotSize" value="2" oninput="updateCrosshairPreview()"></div>
+                </div>
+            </div>
+
+            <div class="ch-section" id="secInner">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Exibir Linhas Int.</label><select id="chInnerShow" onchange="updateCrosshairPreview()"><option value="1">Ativado</option><option value="0">Desativado</option></select></div>
+                    <div><label>Espessura Int.</label><input type="text" id="chInnerThickness" value="2" oninput="updateCrosshairPreview()"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Comprimento Int.</label><input type="text" id="chInnerLength" value="4" oninput="updateCrosshairPreview()"></div>
+                    <div><label>Deslocamento Int.</label><input type="text" id="chInnerOffset" value="2" oninput="updateCrosshairPreview()"></div>
+                </div>
+            </div>
+
+            <div class="ch-section" id="secOuter">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Exibir Linhas Ext.</label><select id="chOuterShow" onchange="updateCrosshairPreview()"><option value="0">Desativado</option><option value="1">Ativado</option></select></div>
+                    <div><label>Espessura Ext.</label><input type="text" id="chOuterThickness" value="2" oninput="updateCrosshairPreview()"></div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                    <div><label>Comprimento Ext.</label><input type="text" id="chOuterLength" value="2" oninput="updateCrosshairPreview()"></div>
+                    <div><label>Deslocamento Ext.</label><input type="text" id="chOuterOffset" value="10" oninput="updateCrosshairPreview()"></div>
+                </div>
+            </div>
+
+            <div>
+                <label>Código de Importação Valorant</label>
+                <input type="text" id="chExportCode" readonly value="0;P..." style="font-size:11px; color:var(--accent-cyan);">
+            </div>
+
+            <button class="btn" onclick="copyCrosshairCode()">Copiar Código p/ Valorant</button>
+            <a href="/" class="btn btn-secondary">Menu Principal</a>
+        </div>
+
+        <div class="crosshair-preview-area">
+            <div class="crosshair-overlay-bg"></div>
+            <div class="crosshair-box" id="liveCrosshairBox">
+                <div class="ch-line" id="chInnerTop"></div><div class="ch-line" id="chInnerBottom"></div><div class="ch-line" id="chInnerLeft"></div><div class="ch-line" id="chInnerRight"></div>
+                <div class="ch-line" id="chOuterTop"></div><div class="ch-line" id="chOuterBottom"></div><div class="ch-line" id="chOuterLeft"></div><div class="ch-line" id="chOuterRight"></div>
+                <div class="ch-dot" id="chDotElement"></div>
+            </div>
+            <div style="position: absolute; bottom: 15px; color: var(--text-muted); font-size: 11px; background: rgba(0,0,0,0.6); padding: 4px 10px; border-radius: 4px;">
+                Preview Pro em tempo real sobre cenário tático
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', updateCrosshairPreview);
+
+        function switchChTab(section) {
+            document.getElementById('subtabGeneral').classList.toggle('active', section === 'general');
+            document.getElementById('subtabInner').classList.toggle('active', section === 'inner');
+            document.getElementById('subtabOuter').classList.toggle('active', section === 'outer');
+            document.getElementById('secGeneral').classList.toggle('active', section === 'general');
+            document.getElementById('secInner').classList.toggle('active', section === 'inner');
+            document.getElementById('secOuter').classList.toggle('active', section === 'outer');
+        }
+
+        function parseNum(val, fallback) {
+            const parsed = parseFloat(String(val).replace(',', '.'));
+            return isNaN(parsed) ? fallback : parsed;
+        }
+
+        function handleColorPresetChange(val) {
+            if (val !== 'custom') {
+                document.getElementById('chColorPicker').value = val;
+                document.getElementById('chColorHexText').value = val;
+            }
+            updateCrosshairPreview();
+        }
+
+        function handleColorInput(val) {
+            document.getElementById('chColorHexText').value = val;
+            document.getElementById('chColorPreset').value = 'custom';
+            updateCrosshairPreview();
+        }
+
+        function updateCrosshairPreview() {
+            const colorVal = document.getElementById('chColorHexText').value || '#00ffcc';
+            const opacity = parseNum(document.getElementById('chOpacity').value, 1);
+            const hasOutline = parseInt(document.getElementById('chHasOutline').value) || 0;
+            const outlineThickness = parseNum(document.getElementById('chOutlineThickness').value, 1);
+            const outlineOpacity = parseNum(document.getElementById('chOutlineOpacity').value, 1);
+            const hasDot = parseInt(document.getElementById('chHasDot').value) || 0;
+            const dotSize = parseNum(document.getElementById('chDotSize').value, 2);
+
+            const innerShow = parseInt(document.getElementById('chInnerShow').value) || 0;
+            const innerThick = parseNum(document.getElementById('chInnerThickness').value, 2);
+            const innerLen = parseNum(document.getElementById('chInnerLength').value, 4);
+            const innerOffset = parseNum(document.getElementById('chInnerOffset').value, 2);
+
+            const outerShow = parseInt(document.getElementById('chOuterShow').value) || 0;
+            const outerThick = parseNum(document.getElementById('chOuterThickness').value, 2);
+            const outerLen = parseNum(document.getElementById('chOuterLength').value, 2);
+            const outerOffset = parseNum(document.getElementById('chOuterOffset').value, 10);
+
+            const outlineStyle = hasOutline === 1 ? `0 0 0 ${outlineThickness}px rgba(0, 0, 0, ${outlineOpacity})` : 'none';
+
+            const iTop = document.getElementById('chInnerTop'), iBottom = document.getElementById('chInnerBottom'), iLeft = document.getElementById('chInnerLeft'), iRight = document.getElementById('chInnerRight');
+
+            if (innerShow === 1 && innerLen > 0) {
+                [iTop, iBottom, iLeft, iRight].forEach(el => {
+                    el.style.display = 'block'; el.style.backgroundColor = colorVal; el.style.opacity = opacity; el.style.border = 'none'; el.style.boxShadow = outlineStyle;
+                });
+                iTop.style.width = `${innerThick}px`; iTop.style.height = `${innerLen}px`; iTop.style.top = `-${innerOffset + innerLen}px`; iTop.style.left = `-${innerThick / 2}px`;
+                iBottom.style.width = `${innerThick}px`; iBottom.style.height = `${innerLen}px`; iBottom.style.top = `${innerOffset}px`; iBottom.style.left = `-${innerThick / 2}px`;
+                iLeft.style.width = `${innerLen}px`; iLeft.style.height = `${innerThick}px`; iLeft.style.top = `-${innerThick / 2}px`; iLeft.style.left = `-${innerOffset + innerLen}px`;
+                iRight.style.width = `${innerLen}px`; iRight.style.height = `${innerThick}px`; iRight.style.top = `-${innerThick / 2}px`; iRight.style.left = `${innerOffset}px`;
+            } else { [iTop, iBottom, iLeft, iRight].forEach(el => el.style.display = 'none'); }
+
+            const oTop = document.getElementById('chOuterTop'), oBottom = document.getElementById('chOuterBottom'), oLeft = document.getElementById('chOuterLeft'), oRight = document.getElementById('chOuterRight');
+
+            if (outerShow === 1 && outerLen > 0) {
+                [oTop, oBottom, oLeft, oRight].forEach(el => {
+                    el.style.display = 'block'; el.style.backgroundColor = colorVal; el.style.opacity = opacity; el.style.border = 'none'; el.style.boxShadow = outlineStyle;
+                });
+                oTop.style.width = `${outerThick}px`; oTop.style.height = `${outerLen}px`; oTop.style.top = `-${outerOffset + outerLen}px`; oTop.style.left = `-${outerThick / 2}px`;
+                oBottom.style.width = `${outerThick}px`; oBottom.style.height = `${outerLen}px`; oBottom.style.top = `${outerOffset}px`; oBottom.style.left = `-${outerThick / 2}px`;
+                oLeft.style.width = `${outerLen}px`; oLeft.style.height = `${outerThick}px`; oLeft.style.top = `-${outerThick / 2}px`; oLeft.style.left = `-${outerOffset + outerLen}px`;
+                oRight.style.width = `${outerLen}px`; oRight.style.height = `${outerThick}px`; oRight.style.top = `-${outerThick / 2}px`; oRight.style.left = `${outerOffset}px`;
+            } else { [oTop, oBottom, oLeft, oRight].forEach(el => el.style.display = 'none'); }
+
+            const dot = document.getElementById('chDotElement');
+            if (hasDot === 1) {
+                dot.style.display = 'block'; dot.style.backgroundColor = colorVal; dot.style.opacity = opacity; dot.style.border = 'none'; dot.style.boxShadow = outlineStyle;
+                dot.style.width = `${dotSize * 2}px`; dot.style.height = `${dotSize * 2}px`; dot.style.top = `0px`; dot.style.left = `0px`;
+            } else { dot.style.display = 'none'; }
+
+            document.getElementById('chExportCode').value = `0;P;c;5;h;0;0t;${innerThick};1t;${outerThick};0l;${innerLen};1l;${outerLen};0o;${innerOffset};1o;${outerOffset};a;${opacity};0f;${hasOutline};1b;0`;
+        }
+
+        function applyProPreset(key) {
+            const presets = {
+                aspas:     { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 2, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                sacy:      { color: '#00ff00', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                pANcada:   { color: '#ffffff', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 5, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                less:      { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                cauanzin:  { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 1, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                saadhak:   { color: '#ffff00', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                qck:       { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                mazin:     { color: '#ffffff', op: 0.8, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                mwzera:    { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 1, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                lukxo:     { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 1, dotSz: 2, iShow: 1, iThick: 2, iLen: 2, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                tenz:      { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 1, dotSz: 2, iShow: 0, iThick: 1, iLen: 0, iOffset: 0, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                demon1:    { color: '#00ff00', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                yay:       { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                asuna:     { color: '#ffff00', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 5, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                boostio:   { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                bang:      { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                zekken:    { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 1, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                stax:      { color: '#ffffff', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                jinggg:    { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                something: { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 1, dotSz: 1, iShow: 1, iThick: 2, iLen: 3, iOffset: 1, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                derke:     { color: '#00ff00', op: 0.8, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                chronicle: { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                boaster:   { color: '#ffff00', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                minaboo:   { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                cNed:      { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                ang1e:     { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 3, iOffset: 1, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                sayf:      { color: '#ffffff', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                nivera:    { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                soulcas:   { color: '#00ffcc', op: 1, outline: 1, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 2, iLen: 4, iOffset: 2, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 },
+                shroud:    { color: '#00ffcc', op: 1, outline: 0, outThick: 1, outOp: 1, dot: 0, dotSz: 2, iShow: 1, iThick: 3, iLen: 6, iOffset: 4, oShow: 0, oThick: 2, oLen: 2, oOffset: 10 }
+            };
+            if (presets[key]) {
+                const p = presets[key];
+                document.getElementById('chColorPicker').value = p.color;
+                document.getElementById('chColorHexText').value = p.color;
+                document.getElementById('chColorPreset').value = 'custom';
+                document.getElementById('chOpacity').value = p.op;
+                document.getElementById('chHasOutline').value = p.outline;
+                document.getElementById('chOutlineThickness').value = p.outThick;
+                document.getElementById('chOutlineOpacity').value = p.outOp;
+                document.getElementById('chHasDot').value = p.dot;
+                document.getElementById('chDotSize').value = p.dotSz;
+                document.getElementById('chInnerShow').value = p.iShow;
+                document.getElementById('chInnerThickness').value = p.iThick;
+                document.getElementById('chInnerLength').value = p.iLen;
+                document.getElementById('chInnerOffset').value = p.iOffset;
+                document.getElementById('chOuterShow').value = p.oShow;
+                document.getElementById('chOuterThickness').value = p.oThick;
+                document.getElementById('chOuterLength').value = p.oLen;
+                document.getElementById('chOuterOffset').value = p.oOffset;
+                updateCrosshairPreview();
+            }
+        }
+
+        function copyCrosshairCode() {
+            const codeInput = document.getElementById('chExportCode');
+            codeInput.select();
+            navigator.clipboard.writeText(codeInput.value);
+            alert('Código de retícula Pro copiado! Cole nas configurações do seu jogo.');
+        }
+    </script>
+</body>
+</html>

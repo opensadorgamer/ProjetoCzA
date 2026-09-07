@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT // TRACKING TRAINER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --bg-main: #0f1923; --bg-card: #18232c; --bg-panel: #111822;
+            --accent-cyan: #00ffcc; --text-main: #ece8e1; --text-muted: #8b978f; --border-color: #2b3a4a;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; user-select: none; overflow: hidden; }
+        .main-container { display: flex; gap: 20px; background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
+        .menu-side { width: 380px; display: flex; flex-direction: column; gap: 8px; }
+        .ranking-side { width: 300px; background: var(--bg-panel); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        h2 { font-family: 'Teko', sans-serif; color: var(--text-main); font-size: 22px; margin: 0 0 10px 0; border-bottom: 2px solid var(--accent-cyan); padding-bottom: 4px; text-align: center; text-transform: uppercase; }
+        label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 2px; display: block; }
+        input[type="text"] { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: 600; box-sizing: border-box; }
+        .input-group { display: flex; gap: 6px; } .input-group input { width: 50%; }
+        .stat-box { background: var(--bg-main); padding: 8px; border-radius: 6px; text-align: center; border-left: 4px solid var(--accent-cyan); border: 1px solid var(--border-color); }
+        .info-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-main); padding: 8px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border-color); }
+        .game-area { position: relative; width: 620px; height: 420px; background: var(--bg-panel); border-radius: 8px; overflow: hidden; border: 2px solid var(--border-color); cursor: none; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
+        .crosshair { position: absolute; width: 10px; height: 10px; background-color: var(--accent-cyan); border: 1px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 8px var(--accent-cyan); z-index: 10; }
+        .tracking-target { position: absolute; width: 50px; height: 50px; background-color: var(--accent-cyan); border: 3px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); box-shadow: 0 0 20px var(--accent-cyan); display: flex; align-items: center; justify-content: center; }
+        .tracking-inner { width: 18px; height: 18px; background-color: var(--bg-main); border-radius: 50%; }
+        .btn { font-family: 'Teko', sans-serif; letter-spacing: 1.5px; background: #00acc1; color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; font-size: 18px; text-transform: uppercase; }
+        .btn:hover { background: #00bcd4; }
+        .btn-secondary { background: #283442; font-size: 16px; text-decoration: none; text-align: center; display: block; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 6px 3px; border-bottom: 1px solid var(--border-color); text-align: center; }
+        th { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
+        tr.rank-1 { color: #ffd700; font-weight: bold; } tr.rank-2 { color: #e0e0e0; font-weight: bold; } tr.rank-3 { color: #e29f52; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="menu-side">
+            <h2 style="margin: 0; border: none; color: var(--accent-cyan);">Tracking Trainer</h2>
+            <div>
+                <label>Mouse DPI & Sensibilidade</label>
+                <div class="input-group">
+                    <input type="text" id="dpiTextTrack" value="800">
+                    <input type="text" id="sensTextTrack" value="0.30">
+                </div>
+            </div>
+            <div class="stat-box">
+                <label style="margin: 0;">eDPI Calculado</label>
+                <h2 id="edpiValTrack" style="margin: 2px 0 0 0; color: var(--text-main); border:none; font-size: 18px;">240</h2>
+            </div>
+            <div class="info-panel">
+                <span>Tempo: <strong id="timeValTrack">30s</strong></span>
+                <span>No Alvo: <strong id="accValTrack" style="color: var(--accent-cyan);">0%</strong></span>
+            </div>
+            <button class="btn" id="startBtnTrack">Iniciar Tracking (30s)</button>
+            <a href="/" class="btn btn-secondary">Menu Principal</a>
+        </div>
+
+        <div class="ranking-side">
+            <h2>🏆 RANKING TRACKING</h2>
+            <table>
+                <thead><tr><th>Pos</th><th>Player</th><th>Tempo No Alvo</th><th>Precisão</th></tr></thead>
+                <tbody id="rankingTableBody"><tr><td colspan="4" style="color: var(--text-muted);">Carregando...</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="game-area" id="gameAreaTracking">
+            <div class="crosshair" id="crosshairTracking" style="left: 310px; top: 210px;"></div>
+            <div id="instructionTextTracking" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-muted); text-align: center; pointer-events: none;">
+                <strong style="color: var(--text-main); font-size: 15px;">TRACKING FLUÍDO</strong><br>Mantenha a mira na esfera<br><small>Pressione P para abortar</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerName = localStorage.getItem('val_player_name') || 'Player1';
+        let isPlaying = false, gameInterval = null, trackingLoopInterval = null;
+        let timeLeftTrack = 30, trackingFramesOnTarget = 0, trackingTotalFrames = 0;
+        let crossXTrack = 310, crossYTrack = 210, targetX = 310, targetY = 210, targetVx = 2.8, targetVy = 2.2;
+
+        const gameAreaTracking = document.getElementById('gameAreaTracking');
+        const crosshairTracking = document.getElementById('crosshairTracking');
+        const startBtnTrack = document.getElementById('startBtnTrack');
+        const timeValTrack = document.getElementById('timeValTrack');
+        const accValTrack = document.getElementById('accValTrack');
+        const instructionTextTracking = document.getElementById('instructionTextTracking');
+        const rankingTableBody = document.getElementById('rankingTableBody');
+
+        window.addEventListener('load', fetchRanking);
+
+        async function fetchRanking() {
+            try {
+                const res = await fetch('/api/ranking/tracking');
+                const data = await res.json();
+                rankingTableBody.innerHTML = data.length === 0 ? `<tr><td colspan="4">Nenhum registro.</td></tr>` : '';
+                data.forEach((p, idx) => {
+                    let badge = idx === 0 ? '🥇 1º' : idx === 1 ? '🥈 2º' : idx === 2 ? '🥉 3º' : `#${idx+1}`;
+                    rankingTableBody.innerHTML += `<tr><td>${badge}</td><td style="text-align:left;">${p.name}</td><td>${p.score}s</td><td>${p.accuracy}%</td></tr>`;
+                });
+            } catch(e) { rankingTableBody.innerHTML = `<tr><td colspan="4">Erro ao carregar.</td></tr>`; }
+        }
+
+        async function saveScore(score, acc) {
+            await fetch('/api/ranking/tracking', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: playerName, score: score, accuracy: acc })
+            });
+            fetchRanking();
+        }
+
+        function parseNum(val, fallback) {
+            const parsed = parseFloat(String(val).replace(',', '.'));
+            return isNaN(parsed) ? fallback : parsed;
+        }
+
+        document.getElementById('dpiTextTrack').addEventListener('input', updateEDPI);
+        document.getElementById('sensTextTrack').addEventListener('input', updateEDPI);
+        function updateEDPI() {
+            const dpi = parseNum(document.getElementById('dpiTextTrack').value, 800);
+            const sens = parseNum(document.getElementById('sensTextTrack').value, 0.3);
+            document.getElementById('edpiValTrack').innerText = (dpi * sens).toFixed(1);
+        }
+
+        gameAreaTracking.addEventListener('click', () => { if (isPlaying) gameAreaTracking.requestPointerLock(); });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isPlaying || document.pointerLockElement !== gameAreaTracking) return;
+            const edpi = parseNum(document.getElementById('edpiValTrack').innerText, 240);
+            const factor = (edpi / 240) * 0.15;
+            crossXTrack = Math.max(10, Math.min(gameAreaTracking.clientWidth - 10, crossXTrack + (e.movementX || 0) * factor));
+            crossYTrack = Math.max(10, Math.min(gameAreaTracking.clientHeight - 10, crossYTrack + (e.movementY || 0) * factor));
+            crosshairTracking.style.left = `${crossXTrack}px`;
+            crosshairTracking.style.top = `${crossYTrack}px`;
+        });
+
+        startBtnTrack.addEventListener('click', () => {
+            timeLeftTrack = 30; trackingFramesOnTarget = 0; trackingTotalFrames = 0;
+            timeValTrack.innerText = timeLeftTrack + 's'; accValTrack.innerText = '0%';
+            isPlaying = true; startBtnTrack.disabled = true; instructionTextTracking.style.display = 'none';
+            crossXTrack = gameAreaTracking.clientWidth / 2; crossYTrack = gameAreaTracking.clientHeight / 2;
+            targetX = gameAreaTracking.clientWidth / 2; targetY = gameAreaTracking.clientHeight / 3;
+            targetVx = 2.8; targetVy = 2.2;
+            gameAreaTracking.requestPointerLock();
+
+            trackingLoopInterval = setInterval(() => {
+                if (!isPlaying) return;
+                targetX += targetVx; targetY += targetVy;
+                if (targetX <= 30 || targetX >= gameAreaTracking.clientWidth - 30) targetVx *= -1;
+                if (targetY <= 30 || targetY >= gameAreaTracking.clientHeight - 30) targetVy *= -1;
+
+                let trackingEl = document.getElementById('activeTrackingTarget');
+                if (!trackingEl) {
+                    trackingEl = document.createElement('div');
+                    trackingEl.className = 'tracking-target';
+                    trackingEl.id = 'activeTrackingTarget';
+                    trackingEl.innerHTML = `<div class="tracking-inner"></div>`;
+                    gameAreaTracking.appendChild(trackingEl);
+                }
+                trackingEl.style.left = `${targetX}px`; trackingEl.style.top = `${targetY}px`;
+
+                trackingTotalFrames++;
+                const dist = Math.sqrt(Math.pow(crossXTrack - targetX, 2) + Math.pow(crossYTrack - targetY, 2));
+                if (dist <= 25) trackingFramesOnTarget++;
+                accValTrack.innerText = Math.round((trackingFramesOnTarget / trackingTotalFrames) * 100) + '%';
+            }, 16);
+
+            gameInterval = setInterval(() => {
+                timeLeftTrack--;
+                timeValTrack.innerText = timeLeftTrack + 's';
+                if (timeLeftTrack <= 0) stopTrackingGame();
+            }, 1000);
+        });
+
+        function stopTrackingGame() {
+            clearInterval(gameInterval); clearInterval(trackingLoopInterval);
+            isPlaying = false; startBtnTrack.disabled = false;
+            document.exitPointerLock();
+            const t = document.getElementById('activeTrackingTarget');
+            if (t) t.remove();
+            const finalAcc = trackingTotalFrames === 0 ? 0 : Math.round((trackingFramesOnTarget / trackingTotalFrames) * 100);
+            const secondsOnTarget = Math.round((trackingFramesOnTarget / trackingTotalFrames) * 30);
+            saveScore(secondsOnTarget, finalAcc);
+            instructionTextTracking.style.display = 'block';
+            instructionTextTracking.innerHTML = `<strong style="color: var(--accent-cyan); font-size:15px;">CONCLUÍDO</strong><p style="margin:2px 0;">No Alvo: <strong>${secondsOnTarget}s</strong> | Precisão: <strong>${finalAcc}%</strong></p>`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'p' && isPlaying) stopTrackingGame();
+        });
+    </script>
+</body>
+</html>

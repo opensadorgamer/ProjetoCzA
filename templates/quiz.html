@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT // QUIZ & LORE MASTER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --bg-main: #0f1923; --bg-card: #18232c; --accent-red: #ff4655;
+            --text-main: #ece8e1; --text-muted: #8b978f; --border-color: #2b3a4a; --accent-cyan: #00ffcc;
+            --correct-green: #28a745; --wrong-red: #dc3545;
+        }
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main);
+            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; user-select: none;
+            background-image: radial-gradient(circle at 15% 20%, rgba(255, 70, 85, 0.08) 0%, transparent 45%),
+                              radial-gradient(circle at 85% 80%, rgba(0, 255, 204, 0.05) 0%, transparent 45%);
+        }
+        .container {
+            background: var(--bg-card); padding: 30px; border-radius: 12px; border: 1px solid var(--border-color);
+            width: 700px; max-width: 95vw; box-shadow: 0 20px 50px rgba(0,0,0,0.6); box-sizing: border-box; text-align: center;
+        }
+        h1 { font-family: 'Teko', sans-serif; color: var(--accent-red); font-size: 36px; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-start {
+            width: 100%; padding: 14px; background: var(--accent-red); border: none; color: white;
+            font-family: 'Teko', sans-serif; font-size: 22px; cursor: pointer; border-radius: 6px;
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px;
+        }
+        .btn-start:hover { background: #fa3444; transform: translateY(-2px); }
+        .option-btn {
+            background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 12px; width: 100%; border-radius: 6px; margin-bottom: 8px; cursor: pointer; text-align: left; font-size: 14px; font-weight: 500; transition: all 0.2s; box-sizing: border-box;
+        }
+        .option-btn:hover { border-color: var(--accent-cyan); background: #16222c; transform: translateX(2px); }
+        .btn-back { display: inline-block; margin-top: 15px; color: var(--text-muted); text-decoration: none; font-size: 12px; transition: color 0.2s; }
+        .btn-back:hover { color: var(--text-main); }
+
+        /* Estilos do Ranking */
+        .ranking-box {
+            margin-top: 20px; background: var(--bg-main); border: 1px solid var(--border-color);
+            border-radius: 6px; padding: 12px; text-align: left;
+        }
+        .ranking-title { font-family: 'Teko', sans-serif; font-size: 20px; color: var(--accent-cyan); margin-bottom: 8px; letter-spacing: 1px; }
+        .ranking-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .ranking-table th, .ranking-table td { padding: 6px 8px; border-bottom: 1px solid var(--border-color); }
+        .ranking-table th { color: var(--text-muted); font-weight: 600; text-align: left; }
+        .ranking-table tr:last-child td { border-bottom: none; }
+        
+        /* Estilos do Relatório */
+        #resultScreen { max-height: 85vh; display: flex; flex-direction: column; }
+        .report-container {
+            text-align: left; overflow-y: auto; max-height: 280px; margin-bottom: 15px;
+            border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-main); padding: 12px;
+        }
+        .report-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+        .report-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .report-question { font-weight: 600; color: var(--text-main); margin-bottom: 4px; }
+        .report-answer { font-size: 12px; }
+        .tag-correct { color: var(--correct-green); font-weight: 600; }
+        .tag-wrong { color: var(--wrong-red); font-weight: 600; }
+    </style>
+</head>
+<body>
+    <div class="container" id="quizContainer">
+        <h1>VALORANT // QUIZ MASTER</h1>
+        <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 20px;">Teste seus conhecimentos sobre mecânicas, lore, mapas e habilidades.</p>
+        
+        <div id="setupScreen">
+            <button class="btn-start" onclick="startQuiz()">📚 Iniciar Quiz (10 Questões)</button>
+            
+            <div class="ranking-box">
+                <div class="ranking-title">🏆 Top 10 Melhores Jogadores</div>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 10%;">#</th>
+                            <th style="width: 50%;">Jogador</th>
+                            <th style="width: 20%;">Acertos</th>
+                            <th style="width: 20%;">Tempo</th>
+                        </tr>
+                    </thead>
+                    <tbody id="rankingTableBody">
+                        <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Carregando ranking...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <a href="/" class="btn-back">Voltar ao Menu Principal</a>
+        </div>
+
+        <div id="gameScreen" style="display: none;">
+            <div style="display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); margin-bottom: 15px; font-weight: 600;">
+                <span id="questionCounter">Questão 1/10</span>
+                <span id="timerDisplay">Tempo: 0s</span>
+            </div>
+            
+            <h3 id="questionText" style="font-size: 16px; margin-bottom: 20px; line-height: 1.4;">Carregando pergunta...</h3>
+            
+            <div id="optionsContainer"></div>
+        </div>
+
+        <div id="resultScreen" style="display: none;">
+            <h2 style="font-family: 'Teko', sans-serif; font-size: 28px; color: var(--accent-cyan); margin: 0 0 5px 0; letter-spacing: 1px;">RESULTADO FINAL</h2>
+            <p id="finalStats" style="font-size: 14px; margin-bottom: 12px; line-height: 1.4;"></p>
+            
+            <div style="font-size: 12px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; text-align: left;">Relatório Detalhado:</div>
+            <div class="report-container" id="reportContainer"></div>
+
+            <button class="btn-start" onclick="location.reload()" style="margin-bottom: 5px;">Jogar Novamente</button>
+            <br>
+            <a href="/" class="btn-back">Voltar ao Menu Principal</a>
+        </div>
+    </div>
+
+    <script>
+        let questions = [];
+        let currentIndex = 0;
+        let score = 0;
+        let startTime = 0;
+        let timerInterval = null;
+        let userAnswers = [];
+
+        // Carrega o ranking ao abrir a página
+        window.addEventListener('DOMContentLoaded', loadRanking);
+
+        async function loadRanking() {
+            try {
+                let res = await fetch('/api/ranking/quiz');
+                let data = await res.json();
+                let tbody = document.getElementById('rankingTableBody');
+                
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Nenhum recorde registrado ainda.</td></tr>`;
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                data.forEach((entry, index) => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${index + 1}º</td>
+                            <td>${escapeHtml(entry.name)}</td>
+                            <td><strong style="color: var(--accent-cyan);">${entry.score}/10</strong></td>
+                            <td>${entry.time}s</td>
+                        </tr>
+                    `;
+                });
+            } catch(e) {
+                document.getElementById('rankingTableBody').innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--wrong-red);">Erro ao carregar ranking.</td></tr>`;
+            }
+        }
+
+        async function startQuiz() {
+            try {
+                let res = await fetch('/api/quiz/questions/teoria');
+                questions = await res.json();
+                
+                if (!questions || questions.length === 0) {
+                    alert('Nenhuma pergunta encontrada no servidor.');
+                    return;
+                }
+            } catch(e) {
+                alert('Erro ao carregar perguntas do servidor.');
+                return;
+            }
+
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                let seconds = Math.floor((Date.now() - startTime) / 1000);
+                document.getElementById('timerDisplay').innerText = `Tempo: ${seconds}s`;
+            }, 1000);
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            if (currentIndex >= 10 || currentIndex >= questions.length) {
+                endQuiz();
+                return;
+            }
+            
+            document.getElementById('questionCounter').innerText = `Questão ${currentIndex + 1}/10`;
+            let q = questions[currentIndex];
+            document.getElementById('questionText').innerText = q.pergunta;
+
+            let optContainer = document.getElementById('optionsContainer');
+            optContainer.innerHTML = '';
+            q.opcoes.forEach((opt, idx) => {
+                optContainer.innerHTML += `<button class="option-btn" onclick="checkAnswer(${idx})">${opt}</button>`;
+            });
+        }
+
+        function checkAnswer(selectedIdx) {
+            let q = questions[currentIndex];
+            let isCorrect = selectedIdx === q.resposta;
+            
+            if (isCorrect) score++;
+
+            userAnswers.push({
+                pergunta: q.pergunta,
+                escolhida: q.opcoes[selectedIdx],
+                correta: q.opcoes[q.resposta],
+                acertou: isCorrect
+            });
+
+            currentIndex++;
+            renderQuestion();
+        }
+
+        async function endQuiz() {
+            clearInterval(timerInterval);
+            let totalTime = Math.floor((Date.now() - startTime) / 1000);
+            let playerName = localStorage.getItem('val_player_name') || 'Anônimo';
+
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'flex';
+            document.getElementById('finalStats').innerHTML = `Jogador: <strong>${playerName}</strong> | Acertos: <strong>${score}/10</strong> | Tempo: <strong>${totalTime}s</strong>`;
+
+            let reportHtml = '';
+            userAnswers.forEach((ans, index) => {
+                let statusClass = ans.acertou ? 'tag-correct' : 'tag-wrong';
+                let statusText = ans.acertou ? 'Correto' : 'Incorreto';
+                
+                reportHtml += `
+                    <div class="report-item">
+                        <div class="report-question">${index + 1}. ${ans.pergunta}</div>
+                        <div class="report-answer">Sua resposta: <span class="${statusClass}">${ans.escolhida} (${statusText})</span></div>
+                        ${!ans.acertou ? `<div class="report-answer">Resposta correta: <span style="color: var(--accent-cyan);">${ans.correta}</span></div>` : ''}
+                    </div>
+                `;
+            });
+            document.getElementById('reportContainer').innerHTML = reportHtml;
+
+            try {
+                await fetch('/api/ranking/quiz', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: playerName, score: score, time: totalTime })
+                });
+            } catch(e) {
+                console.error('Erro ao salvar pontuação no ranking:', e);
+            }
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT // FLICK TRAINER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+        :root {
+            --bg-main: #0f1923; --bg-card: #18232c; --bg-panel: #111822;
+            --accent-red: #ff4655; --accent-red-hover: #ff5864; --accent-cyan: #00ffcc;
+            --text-main: #ece8e1; --text-muted: #8b978f; --border-color: #2b3a4a;
+        }
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main);
+            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; user-select: none; overflow: hidden;
+        }
+        .main-container { display: flex; gap: 20px; background: var(--bg-card); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6); }
+        .menu-side { width: 380px; display: flex; flex-direction: column; gap: 8px; }
+        .ranking-side { width: 300px; background: var(--bg-panel); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); display: flex; flex-direction: column; }
+        h2 { font-family: 'Teko', sans-serif; color: var(--text-main); font-size: 22px; margin: 0 0 10px 0; border-bottom: 2px solid var(--accent-red); padding-bottom: 4px; text-align: center; text-transform: uppercase; }
+        label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 2px; display: block; }
+        input[type="text"] { width: 100%; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); padding: 6px; border-radius: 6px; text-align: center; font-size: 12px; font-weight: 600; box-sizing: border-box; }
+        .input-group { display: flex; gap: 6px; } .input-group input { width: 50%; }
+        .stat-box { background: var(--bg-main); padding: 8px; border-radius: 6px; text-align: center; border-left: 4px solid var(--accent-red); border: 1px solid var(--border-color); }
+        .info-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: var(--bg-main); padding: 8px; border-radius: 6px; font-size: 12px; border: 1px solid var(--border-color); }
+        .game-area { position: relative; width: 620px; height: 420px; background: var(--bg-panel); border-radius: 8px; overflow: hidden; border: 2px solid var(--border-color); cursor: none; box-shadow: inset 0 0 30px rgba(0,0,0,0.5); }
+        .crosshair { position: absolute; width: 10px; height: 10px; background-color: var(--accent-cyan); border: 1px solid #fff; border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; box-shadow: 0 0 8px var(--accent-cyan); z-index: 10; }
+        .target { position: absolute; width: 76px; height: 76px; background-color: var(--accent-red); border: 3px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: translate(-50%, -50%); box-shadow: 0 0 15px var(--accent-red); }
+        .target-middle { width: 46px; height: 46px; background-color: #c72c3b; border: 2px solid #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .target-bullseye { width: 16px; height: 16px; background-color: #fff; border-radius: 50%; }
+        .btn { font-family: 'Teko', sans-serif; letter-spacing: 1.5px; background: var(--accent-red); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; font-size: 18px; text-transform: uppercase; }
+        .btn:hover { background: var(--accent-red-hover); }
+        .btn-secondary { background: #283442; font-size: 16px; text-decoration: none; text-align: center; display: block; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { padding: 6px 3px; border-bottom: 1px solid var(--border-color); text-align: center; }
+        th { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
+        tr.rank-1 { color: #ffd700; font-weight: bold; } tr.rank-2 { color: #e0e0e0; font-weight: bold; } tr.rank-3 { color: #e29f52; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="menu-side">
+            <h2 style="margin: 0; border: none; color: var(--accent-red);">Flick Trainer</h2>
+            <div>
+                <label>Mouse DPI & Sensibilidade</label>
+                <div class="input-group">
+                    <input type="text" id="dpiTextFlick" value="800">
+                    <input type="text" id="sensTextFlick" value="0.30">
+                </div>
+            </div>
+            <div>
+                <label>Tempo (s)</label>
+                <input type="text" id="timeInputFlick" value="30">
+            </div>
+            <div class="stat-box">
+                <label style="margin: 0;">eDPI Calculado</label>
+                <h2 id="edpiValFlick" style="margin: 2px 0 0 0; color: var(--text-main); border:none; font-size: 18px;">240</h2>
+            </div>
+            <div class="info-panel">
+                <span>Acertos: <strong id="scoreValFlick" style="color: var(--accent-red);">0</strong></span>
+                <span>Tempo: <strong id="timeValFlick">30s</strong></span>
+                <span style="grid-column: span 2;">Precisão: <strong id="accValFlick" style="color: var(--accent-cyan);">100%</strong></span>
+            </div>
+            <button class="btn" id="startBtnFlick">Iniciar Treinamento</button>
+            <a href="/" class="btn btn-secondary">Menu Principal</a>
+        </div>
+
+        <div class="ranking-side">
+            <h2>🏆 RANKING FLICK</h2>
+            <table>
+                <thead><tr><th>Pos</th><th>Player</th><th>Acertos</th><th>Precisão</th></tr></thead>
+                <tbody id="rankingTableBody"><tr><td colspan="4" style="color: var(--text-muted);">Carregando...</td></tr></tbody>
+            </table>
+        </div>
+
+        <div class="game-area" id="gameAreaFlick">
+            <div class="crosshair" id="crosshairFlick" style="left: 310px; top: 210px;"></div>
+            <div id="instructionTextFlick" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-muted); text-align: center; pointer-events: none;">
+                <strong style="color: var(--text-main); font-size: 15px;">PRONTO PARA O COMBATE</strong><br>Clique em "Iniciar Treinamento"<br><small>Pressione P para abortar</small>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let playerName = localStorage.getItem('val_player_name') || 'Player1';
+        let isPlaying = false, gameInterval = null;
+        let scoreFlick = 0, totalAccuracyPointsFlick = 0, shotsFiredFlick = 0, timeLeftFlick = 30;
+        let crossXFlick = 310, crossYFlick = 210, currentTargetDataFlick = null;
+
+        const gameAreaFlick = document.getElementById('gameAreaFlick');
+        const crosshairFlick = document.getElementById('crosshairFlick');
+        const startBtnFlick = document.getElementById('startBtnFlick');
+        const scoreValFlick = document.getElementById('scoreValFlick');
+        const timeValFlick = document.getElementById('timeValFlick');
+        const accValFlick = document.getElementById('accValFlick');
+        const instructionTextFlick = document.getElementById('instructionTextFlick');
+        const rankingTableBody = document.getElementById('rankingTableBody');
+
+        window.addEventListener('load', fetchRanking);
+
+        async function fetchRanking() {
+            try {
+                const res = await fetch('/api/ranking/flick');
+                const data = await res.json();
+                rankingTableBody.innerHTML = data.length === 0 ? `<tr><td colspan="4">Nenhum registro.</td></tr>` : '';
+                data.forEach((p, idx) => {
+                    let badge = idx === 0 ? '🥇 1º' : idx === 1 ? '🥈 2º' : idx === 2 ? '🥉 3º' : `#${idx+1}`;
+                    rankingTableBody.innerHTML += `<tr><td>${badge}</td><td style="text-align:left;">${p.name}</td><td>${p.score}</td><td>${p.accuracy}%</td></tr>`;
+                });
+            } catch(e) { rankingTableBody.innerHTML = `<tr><td colspan="4">Erro ao carregar.</td></tr>`; }
+        }
+
+        async function saveScore(score, acc) {
+            await fetch('/api/ranking/flick', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ name: playerName, score: score, accuracy: acc })
+            });
+            fetchRanking();
+        }
+
+        function parseNum(val, fallback) {
+            const parsed = parseFloat(String(val).replace(',', '.'));
+            return isNaN(parsed) ? fallback : parsed;
+        }
+
+        document.getElementById('dpiTextFlick').addEventListener('input', updateEDPI);
+        document.getElementById('sensTextFlick').addEventListener('input', updateEDPI);
+        function updateEDPI() {
+            const dpi = parseNum(document.getElementById('dpiTextFlick').value, 800);
+            const sens = parseNum(document.getElementById('sensTextFlick').value, 0.3);
+            document.getElementById('edpiValFlick').innerText = (dpi * sens).toFixed(1);
+        }
+
+        gameAreaFlick.addEventListener('click', () => { if (isPlaying) gameAreaFlick.requestPointerLock(); });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isPlaying || document.pointerLockElement !== gameAreaFlick) return;
+            const edpi = parseNum(document.getElementById('edpiValFlick').innerText, 240);
+            const factor = (edpi / 240) * 0.15;
+            crossXFlick = Math.max(10, Math.min(gameAreaFlick.clientWidth - 10, crossXFlick + (e.movementX || 0) * factor));
+            crossYFlick = Math.max(10, Math.min(gameAreaFlick.clientHeight - 10, crossYFlick + (e.movementY || 0) * factor));
+            crosshairFlick.style.left = `${crossXFlick}px`;
+            crosshairFlick.style.top = `${crossYFlick}px`;
+        });
+
+        gameAreaFlick.addEventListener('mousedown', () => {
+            if (!isPlaying || document.pointerLockElement !== gameAreaFlick) return;
+            shotsFiredFlick++;
+            let shotAcc = 0;
+            if (currentTargetDataFlick) {
+                const dist = Math.sqrt(Math.pow(crossXFlick - currentTargetDataFlick.x, 2) + Math.pow(crossYFlick - currentTargetDataFlick.y, 2));
+                if (dist <= 38) {
+                    scoreFlick++;
+                    scoreValFlick.innerText = scoreFlick;
+                    shotAcc = dist <= 10 ? 100 : (dist <= 24 ? 75 : 50);
+                    spawnTarget();
+                }
+            }
+            totalAccuracyPointsFlick += shotAcc;
+            accValFlick.innerText = Math.round(totalAccuracyPointsFlick / shotsFiredFlick) + '%';
+        });
+
+        function spawnTarget() {
+            const existing = document.getElementById('activeFlickTarget');
+            if (existing) existing.remove();
+            const target = document.createElement('div');
+            target.className = 'target';
+            target.id = 'activeFlickTarget';
+            target.innerHTML = `<div class="target-middle"><div class="target-bullseye"></div></div>`;
+            const rx = Math.floor(Math.random() * (gameAreaFlick.clientWidth - 100)) + 50;
+            const ry = Math.floor(Math.random() * (gameAreaFlick.clientHeight - 100)) + 50;
+            target.style.left = `${rx}px`; target.style.top = `${ry}px`;
+            currentTargetDataFlick = { x: rx, y: ry };
+            gameAreaFlick.appendChild(target);
+        }
+
+        startBtnFlick.addEventListener('click', () => {
+            timeLeftFlick = parseNum(document.getElementById('timeInputFlick').value, 30);
+            scoreFlick = 0; totalAccuracyPointsFlick = 0; shotsFiredFlick = 0;
+            scoreValFlick.innerText = 0; timeValFlick.innerText = timeLeftFlick + 's'; accValFlick.innerText = '100%';
+            isPlaying = true; startBtnFlick.disabled = true; instructionTextFlick.style.display = 'none';
+            crossXFlick = gameAreaFlick.clientWidth / 2; crossYFlick = gameAreaFlick.clientHeight / 2;
+            crosshairFlick.style.left = `${crossXFlick}px`; crosshairFlick.style.top = `${crossYFlick}px`;
+            gameAreaFlick.requestPointerLock();
+            spawnTarget();
+
+            gameInterval = setInterval(() => {
+                timeLeftFlick--;
+                timeValFlick.innerText = timeLeftFlick + 's';
+                if (timeLeftFlick <= 0) stopGame();
+            }, 1000);
+        });
+
+        function stopGame() {
+            clearInterval(gameInterval);
+            isPlaying = false; startBtnFlick.disabled = false;
+            document.exitPointerLock();
+            const t = document.getElementById('activeFlickTarget');
+            if (t) t.remove();
+            currentTargetDataFlick = null;
+            const finalAcc = shotsFiredFlick === 0 ? 100 : Math.round(totalAccuracyPointsFlick / shotsFiredFlick);
+            saveScore(scoreFlick, finalAcc);
+            instructionTextFlick.style.display = 'block';
+            instructionTextFlick.innerHTML = `<strong style="color: var(--accent-red); font-size:15px;">CONCLUÍDO</strong><p style="margin:2px 0;">Acertos: <strong>${scoreFlick}</strong> | Precisão: <strong>${finalAcc}%</strong></p>`;
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key.toLowerCase() === 'p' && isPlaying) stopGame();
+        });
+    </script>
+</body>
+</html>

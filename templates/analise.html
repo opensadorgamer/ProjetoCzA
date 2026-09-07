@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VALORANT // AI COACH & TRACKER ANALYZER</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Inter:wght@400;500;600;800&display=swap');
+        
+        :root {
+            --bg-main: #090e15; --bg-card: #101822; --bg-panel: #0d141d;
+            --accent-red: #ff4655; --accent-cyan: #00ffcc; --accent-purple: #ab47bc;
+            --text-main: #ece8e1; --text-muted: #768390; --border-color: #263649;
+            --gold: #ffd700;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-main);
+            margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh;
+            user-select: none;
+            background-image: 
+                linear-gradient(rgba(15, 25, 35, 0.5) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(15, 25, 35, 0.5) 1px, transparent 1px),
+                radial-gradient(circle at 50% 10%, rgba(171, 71, 188, 0.1) 0%, transparent 60%);
+            background-size: 30px 30px, 30px 30px, 100% 100%;
+        }
+
+        .main-container {
+            display: flex; flex-direction: column; gap: 24px; 
+            background: linear-gradient(135deg, rgba(22, 32, 44, 0.95) 0%, rgba(13, 20, 29, 0.98) 100%); 
+            padding: 35px; border-radius: 4px; border: 1px solid var(--border-color); 
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            width: 950px; max-width: 95vw; box-sizing: border-box; position: relative;
+        }
+
+        .header-flex { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; }
+        h1 {
+            font-family: 'Teko', sans-serif; color: var(--accent-purple); margin: 0;
+            font-size: 42px; line-height: 1; letter-spacing: 2px; text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(171, 71, 188, 0.4);
+        }
+
+        .back-btn {
+            background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-muted);
+            padding: 8px 16px; border-radius: 2px; font-family: 'Teko', sans-serif; font-size: 16px;
+            letter-spacing: 1px; cursor: pointer; text-decoration: none; transition: 0.2s;
+        }
+        .back-btn:hover { border-color: var(--accent-purple); color: var(--text-main); background: #1a222d; }
+
+        .input-section { display: flex; gap: 12px; }
+        input[type="text"] {
+            flex: 1; background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main);
+            padding: 12px 16px; border-radius: 2px; font-size: 14px; font-weight: 600; outline: none; transition: 0.3s;
+        }
+        input[type="text"]:focus { border-color: var(--accent-purple); box-shadow: 0 0 15px rgba(171, 71, 188, 0.2); }
+
+        .analyze-btn {
+            background: linear-gradient(135deg, var(--accent-purple), #7b1fa2); border: none; color: white;
+            padding: 0 24px; border-radius: 2px; font-family: 'Teko', sans-serif; font-size: 20px;
+            letter-spacing: 1.5px; cursor: pointer; transition: 0.2s; text-transform: uppercase;
+        }
+        .analyze-btn:hover { filter: brightness(1.15); box-shadow: 0 0 20px rgba(171, 71, 188, 0.4); }
+
+        #loader { display: none; text-align: center; padding: 40px; color: var(--accent-cyan); font-family: 'Teko', sans-serif; font-size: 24px; letter-spacing: 2px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top: 3px solid var(--accent-cyan); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        #resultContainer { display: none; flex-direction: column; gap: 20px; max-height: 500px; overflow-y: auto; padding-right: 5px; }
+        
+        .coach-box {
+            background: rgba(13, 20, 29, 0.8); border: 1px solid var(--border-color); border-left: 4px solid var(--accent-purple);
+            padding: 20px; border-radius: 2px; white-space: pre-line; font-size: 14px; line-height: 1.6; color: var(--text-main);
+        }
+        .coach-box h3 { font-family: 'Teko', sans-serif; font-size: 24px; color: var(--accent-purple); margin: 0 0 10px 0; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-flex">
+            <div>
+                <h1>VALORANT AI COACH</h1>
+                <p style="color: var(--text-muted); margin: 4px 0 0 0; font-size: 13px;">Análise comportamental e de desempenho baseada em IA para o seu perfil</p>
+            </div>
+            <a href="/" class="back-btn">← Voltar ao Hub</a>
+        </div>
+
+        <div class="input-section">
+            <input type="text" id="trackerUrlInput" placeholder="Cole o link do seu perfil do tracker.gg aqui...">
+            <button class="analyze-btn" onclick="runAIAnalysis()">Processar com IA</button>
+        </div>
+
+        <div id="loader">
+            <div class="spinner"></div>
+            <span>ANALISANDO PARTIDAS, METAS E ESTATÍSTICAS DO JOGADOR...</span>
+        </div>
+
+        <div id="resultContainer">
+            <div class="coach-box">
+                <h3 id="resultTitle">DIAGNÓSTICO TÁTICO DO COACH</h3>
+                <p id="aiOutputText">Aguardando link...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function runAIAnalysis() {
+            const url = document.getElementById('trackerUrlInput').value.trim();
+            if(!url.includes('tracker.gg')) {
+                alert('Insira um link válido do tracker.gg!');
+                return;
+            }
+
+            document.getElementById('resultContainer').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+
+            try {
+                const response = await fetch('/api/analisar-perfil', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ url: url })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'flex';
+
+                if(data.status === 'sucesso') {
+                    document.getElementById('resultTitle').innerText = `DIAGNÓSTICO PARA: ${data.riot_id}`;
+                    document.getElementById('aiOutputText').innerText = data.texto_ia;
+                } else {
+                    document.getElementById('aiOutputText').innerText = 'Erro ao processar análise com a IA.';
+                }
+            } catch(e) {
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('resultContainer').style.display = 'flex';
+                document.getElementById('aiOutputText').innerText = 'Erro de conexão com o servidor Flask/IA.';
+            }
+        }
+    </script>
+</body>
+</html>
