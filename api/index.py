@@ -1,7 +1,6 @@
 import os
 import json
-import urllib.request
-import urllib.error
+import httpx
 from flask import Flask, render_template, request, jsonify
 from quiz_data import QUIZ_QUESTOES
 import random
@@ -20,23 +19,24 @@ def supabase_request(endpoint, method="GET", data=None):
         "Prefer": "return=representation"
     }
     
-    req_data = json.dumps(data).encode('utf-8') if data else None
-    req = urllib.request.Request(url, data=req_data, headers=headers, method=method)
-    
-    # Cria um handler isolado sem proxy para evitar conflito de socket no ambiente serverless
-    proxy_handler = urllib.request.ProxyHandler({})
-    opener = urllib.request.build_opener(proxy_handler)
-    
     try:
-        with opener.open(req, timeout=10) as response:
-            body = response.read().decode('utf-8')
-            return json.loads(body) if body else []
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode('utf-8') if e.fp else ""
-        print(f"Erro Supabase HTTP {e.code}: {error_body}")
-        return None
+        with httpx.Client(timeout=10.0) as client:
+            if method == "GET":
+                response = client.get(url, headers=headers)
+            elif method == "POST":
+                response = client.post(url, headers=headers, json=data)
+            elif method == "DELETE":
+                response = client.delete(url, headers=headers)
+            else:
+                return None
+
+            if response.status_code >= 400:
+                print(f"Erro Supabase HTTP {response.status_code}: {response.text}")
+                return None
+                
+            return response.json() if response.text else []
     except Exception as e:
-        print(f"Erro conexao Supabase: {e}")
+        print(f"Erro conexao Supabase com httpx: {e}")
         return None
 
 @app.route('/')
@@ -63,7 +63,7 @@ def curiosidades_page():
 def quiz_page():
     return render_template('quiz.html')
 
-# --- ROTAS DE RANKING ---
+# --- ROTAS DE RANKING (API) ---
 
 @app.route('/api/ranking/<mode>', methods=['GET'])
 def get_ranking(mode):
